@@ -22,6 +22,11 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
         this.listener = listener;
     }
 
+    public void updatePlantas(List<Planta> newPlantas) {
+        this.plantas = newPlantas;
+        notifyDataSetChanged();
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_planta, parent, false);
@@ -35,6 +40,15 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
         holder.descripcion.setText(planta.getDescripcion());
         holder.cantidad.setText("Cantidad: " + planta.getCantidad());
         holder.precio.setText("$" + String.format("%.2f", planta.getPrecio()));
+        
+        // Verificar si el drawable existe antes de usarlo
+        try {
+            holder.imagen.setImageResource(planta.getImagenResId());
+        } catch (Exception e) {
+            // Si el drawable no existe, usar un drawable por defecto
+            holder.imagen.setImageResource(R.drawable.ic_launcher_foreground);
+        }
+        
         holder.itemView.setOnClickListener(v -> listener.onPlantaClick(planta));
     }
 
@@ -45,12 +59,15 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView nombre, descripcion, cantidad, precio;
+        android.widget.ImageView imagen;
+        
         ViewHolder(View itemView) {
             super(itemView);
             nombre = itemView.findViewById(R.id.textNombrePlanta);
             descripcion = itemView.findViewById(R.id.textDescripcionPlanta);
             cantidad = itemView.findViewById(R.id.textCantidadPlanta);
             precio = itemView.findViewById(R.id.textPrecioPlanta);
+            imagen = itemView.findViewById(R.id.imagePlanta);
         }
     }
 }

@@ -17,6 +17,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         this.compras = compras;
     }
 
+    public void updateCompras(List<Compra> newCompras) {
+        this.compras = newCompras;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public HistoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -27,39 +32,30 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     @Override
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
         Compra compra = compras.get(position);
-        holder.fecha.setText(compra.getFecha());
+        holder.fecha.setText("Fecha: " + compra.getFecha());
         holder.total.setText("Total: $" + String.format("%.2f", compra.getTotal()));
 
         // Mostrar productos como texto simple
         StringBuilder productos = new StringBuilder();
-        for (int i = 0; i < compra.getProductos().size(); i++) {
-            productos.append(compra.getProductos().get(i).getNombre());
-            if (i < compra.getProductos().size() - 1) productos.append(", ");
-        }
-        holder.productos.setText("Productos: " + productos.toString());
-
-        // Mostrar calificaciones si existen
-        StringBuilder calificaciones = new StringBuilder();
-        if (compra.getCalificaciones() != null && !compra.getCalificaciones().isEmpty()) {
-            calificaciones.append("Calificaciones:\n");
-            for (int i = 0; i < compra.getCalificaciones().size(); i++) {
-                calificaciones.append("- ")
-                    .append(compra.getCalificaciones().get(i).getProducto())
-                    .append(": ")
-                    .append(compra.getCalificaciones().get(i).getEstrellas())
-                    .append(" estrellas. ")
-                    .append(compra.getCalificaciones().get(i).getComentario());
-                if (i < compra.getCalificaciones().size() - 1) calificaciones.append("\n");
+        if (compra.getProductos() != null && !compra.getProductos().isEmpty()) {
+            for (int i = 0; i < compra.getProductos().size(); i++) {
+                productos.append(compra.getProductos().get(i).getNombre());
+                if (i < compra.getProductos().size() - 1) productos.append(", ");
             }
+            holder.productos.setText("Productos: " + productos.toString());
         } else {
-            calificaciones.append("Sin calificaciones");
+            holder.productos.setText("Productos: No disponibles");
         }
-        holder.calificaciones.setText(calificaciones.toString());
+        
+        // Ocultar el TextView de calificaciones ya que no lo estamos usando
+        if (holder.calificaciones != null) {
+            holder.calificaciones.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return compras.size();
+        return compras != null ? compras.size() : 0;
     }
 
     static class HistoryViewHolder extends RecyclerView.ViewHolder {

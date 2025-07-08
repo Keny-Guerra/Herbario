@@ -10,13 +10,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.herbario.R;
 import com.example.herbario.data.CartItem;
-import com.example.herbario.ui.cart.CartActivity;
-import java.util.ArrayList;
-import java.util.List;
-import com.example.herbario.data.Compra;
-import com.example.herbario.ui.history.HistoryActivity;
+import com.example.herbario.data.NotificacionManager;
+import com.example.herbario.data.CarritoManager;
+import com.example.herbario.data.CompraManager;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class CheckoutActivity extends AppCompatActivity {
@@ -24,13 +23,18 @@ public class CheckoutActivity extends AppCompatActivity {
     private Button btnSeleccionarPago, btnConfirmarCompra;
     private List<CartItem> itemsCompra;
     private String metodoPago = "Efectivo"; // Por defecto
+    private CompraManager compraManager;
+    private CarritoManager carritoManager;
+    private String usuarioEmail = "usuario@ejemplo.com"; // TODO: obtener email real del usuario logueado
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_checkout);
 
-        itemsCompra = CartActivity.cartItems;
+        compraManager = new CompraManager(this);
+        carritoManager = new CarritoManager(this);
+        itemsCompra = carritoManager.obtenerCarrito(usuarioEmail);
 
         textTotal = findViewById(R.id.textCheckoutTotal);
         textMetodoPago = findViewById(R.id.textMetodoPago);
@@ -47,6 +51,9 @@ public class CheckoutActivity extends AppCompatActivity {
 
         btnSeleccionarPago.setOnClickListener(v -> mostrarDialogoMetodoPago());
         btnConfirmarCompra.setOnClickListener(v -> confirmarCompra());
+        
+        // Mostrar información de depuración
+        Toast.makeText(this, "Items en carrito: " + itemsCompra.size(), Toast.LENGTH_SHORT).show();
     }
 
     private double calcularTotal() {
@@ -74,59 +81,42 @@ public class CheckoutActivity extends AppCompatActivity {
     private void confirmarCompra() {
         if (!itemsCompra.isEmpty()) {
             String fecha = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(new Date());
-            List<CartItem> productosCopia = new ArrayList<>();
-            for (CartItem item : itemsCompra) {
-                productosCopia.add(new CartItem(item.getNombre(), item.getPrecio(), item.getCantidad(), item.getImagenResId()));
-            }
             double total = calcularTotal();
-            Compra compra = new Compra(fecha, productosCopia, total);
-            HistoryActivity.historialCompras.add(compra);
-            mostrarDialogoCalificacion(compra);
+            
+            try {
+                // Verificar compras antes de guardar
+                compraManager.verificarCompras();
+                
+                // Guarda la compra y su detalle en la base de datos
+                boolean compraGuardada = compraManager.guardarCompra(usuarioEmail, fecha, total, itemsCompra);
+                
+                if (compraGuardada) {
+                    // Verificar compras después de guardar
+                    compraManager.verificarCompras();
+                    
+                    // Limpia el carrito después de la compra
+                    carritoManager.limpiarCarrito(usuarioEmail);
+                    
+                    Toast.makeText(this, "¡Compra realizada exitosamente! Total: $" + String.format("%.2f", total), Toast.LENGTH_LONG).show();
+                    
+                    // Guarda notificación de compra exitosa
+                    NotificacionManager notiManager = new NotificacionManager(this);
+                    notiManager.guardarNotificacion(
+                            usuarioEmail,
+                            "¡Gracias por tu compra!",
+                            "Tu compra por $" + String.format("%.2f", total) + " ha sido registrada. No olvides revisar el estado de tus plantas medicinales.",
+                            new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date())
+                    );
+                    
+                    finish();
+                } else {
+                    Toast.makeText(this, "Error: No se pudo guardar la compra", Toast.LENGTH_LONG).show();
+                }
+            } catch (Exception e) {
+                Toast.makeText(this, "Error al guardar la compra: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         } else {
             Toast.makeText(this, "El carrito está vacío", Toast.LENGTH_SHORT).show();
         }
-        itemsCompra.clear();
-    }
-
-    private void mostrarDialogoCalificacion(Compra compra) {
-        if (compra.getProductos().isEmpty()) {
-            finish();
-            return;
-        }
-        CartItem producto = compra.getProductos().get(0);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Califica tu compra: " + producto.getNombre());
-        final android.widget.EditText inputComentario = new android.widget.EditText(this);
-        inputComentario.setHint("Comentario (opcional)");
-        final android.widget.RatingBar ratingBar = new android.widget.RatingBar(this);
-        ratingBar.setNumStars(5);
-        ratingBar.setStepSize(1);
-        ratingBar.setRating(5); // Valor por defecto: 5 estrellas
-        ratingBar.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
-            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT));
-        // Aumentar el tamaño visual del RatingBar
-        ratingBar.setScaleX(1.5f);
-        ratingBar.setScaleY(1.5f);
-        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
-        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.setPadding(32, 16, 32, 0);
-        layout.addView(ratingBar);
-        layout.addView(inputComentario);
-        builder.setView(layout);
-        builder.setPositiveButton("Enviar", (dialog, which) -> {
-            float estrellas = ratingBar.getRating();
-            if (estrellas < 1) estrellas = 1; // Forzar mínimo 1 estrella
-            String comentario = inputComentario.getText().toString();
-            compra.addCalificacion(new com.example.herbario.data.Calificacion(producto.getNombre(), "Usuario", estrellas, comentario));
-            Toast.makeText(this, "¡Compra y calificación guardadas!", Toast.LENGTH_LONG).show();
-            finish();
-        });
-        builder.setNegativeButton("Omitir", (dialog, which) -> {
-            Toast.makeText(this, "¡Compra guardada!", Toast.LENGTH_LONG).show();
-            finish();
-        });
-        builder.setCancelable(false);
-        builder.show();
     }
 }

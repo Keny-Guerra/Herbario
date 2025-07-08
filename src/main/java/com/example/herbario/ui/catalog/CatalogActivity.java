@@ -10,22 +10,28 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.herbario.R;
 import com.example.herbario.data.Planta;
+import com.example.herbario.data.ProductoManager;
 import com.example.herbario.ui.detail.PlantaDetailActivity;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CatalogActivity extends AppCompatActivity implements PlantaAdapter.OnPlantaClickListener {
-    private List<Planta> plantas;
+    private List<Planta> plantasOriginales;
     private List<Planta> plantasFiltradas;
     private PlantaAdapter adapter;
+    private ProductoManager productoManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
 
-        plantas = getPlantasEjemplo();
-        plantasFiltradas = new ArrayList<>(plantas);
+        productoManager = new ProductoManager(this);
+        productoManager.inicializarProductosEjemplo(); // Solo si está vacío
+        
+        // Obtener todas las plantas
+        plantasOriginales = productoManager.obtenerTodosLosProductos();
+        plantasFiltradas = new ArrayList<>(plantasOriginales);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewCatalog);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -47,26 +53,22 @@ public class CatalogActivity extends AppCompatActivity implements PlantaAdapter.
 
     private void filtrarPlantas(String texto) {
         plantasFiltradas.clear();
-        if (texto.isEmpty()) {
-            plantasFiltradas.addAll(plantas);
+        
+        if (texto == null || texto.trim().isEmpty()) {
+            // Si no hay texto de búsqueda, mostrar todas las plantas
+            plantasFiltradas.addAll(plantasOriginales);
         } else {
-            for (Planta planta : plantas) {
-                if (planta.getNombre().toLowerCase().contains(texto.toLowerCase()) ||
-                        planta.getDescripcion().toLowerCase().contains(texto.toLowerCase())) {
+            // Filtrar plantas que contengan el texto en nombre o descripción
+            String textoBusqueda = texto.toLowerCase().trim();
+            for (Planta planta : plantasOriginales) {
+                if (planta.getNombre().toLowerCase().contains(textoBusqueda) ||
+                    planta.getDescripcion().toLowerCase().contains(textoBusqueda)) {
                     plantasFiltradas.add(planta);
                 }
             }
         }
-        adapter.notifyDataSetChanged();
-    }
-
-    private List<Planta> getPlantasEjemplo() {
-        List<Planta> lista = new ArrayList<>();
-        lista.add(new Planta("Manzanilla", "Alivia dolores estomacales", 10, 5.0, R.drawable.manzanilla));
-        lista.add(new Planta("Menta", "Refrescante y digestiva", 15, 4.5, R.drawable.menta));
-        lista.add(new Planta("Romero", "Aromática y medicinal", 8, 6.0, R.drawable.romero));
-        lista.add(new Planta("Lavanda", "Relajante y aromática", 12, 7.0, R.drawable.lavanda));
-        return lista;
+        
+        adapter.updatePlantas(plantasFiltradas);
     }
 
     @Override
@@ -76,6 +78,7 @@ public class CatalogActivity extends AppCompatActivity implements PlantaAdapter.
         intent.putExtra("descripcion", planta.getDescripcion());
         intent.putExtra("precio", planta.getPrecio());
         intent.putExtra("imagenResId", planta.getImagenResId());
+        intent.putExtra("stock", planta.getCantidad());
         startActivity(intent);
     }
 }

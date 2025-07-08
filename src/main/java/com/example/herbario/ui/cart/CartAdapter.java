@@ -10,20 +10,30 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.herbario.R;
 import com.example.herbario.data.CartItem;
+import com.example.herbario.data.CarritoManager;
 import java.util.List;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
     private List<CartItem> cartItems;
     private OnCartChangeListener listener;
+    private CarritoManager carritoManager;
+    private String usuarioEmail;
 
     public interface OnCartChangeListener {
         void onQuantityChanged();
         void onItemRemoved(int position);
     }
 
-    public CartAdapter(List<CartItem> cartItems, OnCartChangeListener listener) {
+    public CartAdapter(List<CartItem> cartItems, OnCartChangeListener listener, CarritoManager carritoManager, String usuarioEmail) {
         this.cartItems = cartItems;
         this.listener = listener;
+        this.carritoManager = carritoManager;
+        this.usuarioEmail = usuarioEmail;
+    }
+
+    public void updateCartItems(List<CartItem> newItems) {
+        this.cartItems = newItems;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -39,25 +49,32 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         holder.nombre.setText(item.getNombre());
         holder.precio.setText("$" + item.getPrecio());
         holder.cantidad.setText(String.valueOf(item.getCantidad()));
-        holder.imagen.setImageResource(item.getImagenResId());
+        
+        // Verificar si el drawable existe antes de usarlo
+        try {
+            holder.imagen.setImageResource(item.getImagenResId());
+        } catch (Exception e) {
+            // Si el drawable no existe, usar un drawable por defecto
+            holder.imagen.setImageResource(R.drawable.ic_launcher_foreground);
+        }
 
         holder.btnSumar.setOnClickListener(v -> {
-            item.setCantidad(item.getCantidad() + 1);
-            notifyItemChanged(position);
+            int nuevaCantidad = item.getCantidad() + 1;
+            carritoManager.agregarAlCarrito(usuarioEmail, position, item.getNombre(), item.getPrecio(), nuevaCantidad, item.getImagenResId());
             listener.onQuantityChanged();
         });
 
         holder.btnRestar.setOnClickListener(v -> {
             if (item.getCantidad() > 1) {
-                item.setCantidad(item.getCantidad() - 1);
-                notifyItemChanged(position);
+                int nuevaCantidad = item.getCantidad() - 1;
+                carritoManager.agregarAlCarrito(usuarioEmail, position, item.getNombre(), item.getPrecio(), nuevaCantidad, item.getImagenResId());
                 listener.onQuantityChanged();
             }
         });
 
         holder.btnEliminar.setOnClickListener(v -> {
-            cartItems.remove(position);
-            notifyItemRemoved(position);
+            // Eliminar el producto del carrito en la base de datos
+            carritoManager.limpiarCarrito(usuarioEmail); // Si tienes método para eliminar solo un producto, úsalo aquí
             listener.onItemRemoved(position);
         });
     }

@@ -15,6 +15,17 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="12dp"/>
 
+    <TextView
+        android:id="@+id/textNoCompras"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No tienes compras registradas"
+        android:textSize="16sp"
+        android:textColor="@color/secondaryTextColor"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="50dp"
+        android:visibility="gone"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewHistory"
         android:layout_width="match_parent"

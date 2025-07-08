@@ -18,6 +18,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.mensajes = mensajes;
     }
 
+    public void updateMensajes(List<Mensaje> newMensajes) {
+        this.mensajes = newMensajes;
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemViewType(int position) {
         return mensajes.get(position).esUsuario() ? TIPO_USUARIO : TIPO_BOT;

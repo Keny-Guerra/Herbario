@@ -18,6 +18,11 @@ public class RatingAdapter extends RecyclerView.Adapter<RatingAdapter.RatingView
         this.calificaciones = calificaciones;
     }
 
+    public void updateCalificaciones(List<Calificacion> newCalificaciones) {
+        this.calificaciones = newCalificaciones;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public RatingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

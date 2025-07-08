@@ -10,23 +10,30 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.herbario.R;
 import com.example.herbario.data.Planta;
 import com.example.herbario.data.CartItem;
+import com.example.herbario.data.ProductoManager;
+import com.example.herbario.data.CarritoManager;
 import com.example.herbario.ui.chatbot.ChatbotActivity;
 import com.example.herbario.ui.preferences.PreferencesActivity;
 import com.example.herbario.ui.cart.CartActivity;
 import java.util.List;
-import java.util.ArrayList;
 import android.widget.ImageButton;
 
 public class InventoryActivity extends AppCompatActivity implements InventoryAdapter.OnPlantaClickListener {
     private List<Planta> plantas;
     private InventoryAdapter adapter;
+    private ProductoManager productoManager;
+    private CarritoManager carritoManager;
+    private String usuarioEmail = "usuario@ejemplo.com"; // TODO: obtener email real del usuario logueado
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventory);
 
-        plantas = getPlantasEjemplo();
+        productoManager = new ProductoManager(this);
+        carritoManager = new CarritoManager(this);
+        productoManager.inicializarProductosEjemplo(); // Solo si está vacío
+        plantas = productoManager.obtenerTodosLosProductos();
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewInventory);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -50,15 +57,6 @@ public class InventoryActivity extends AppCompatActivity implements InventoryAda
         });
     }
 
-    private List<Planta> getPlantasEjemplo() {
-        List<Planta> lista = new ArrayList<>();
-        lista.add(new Planta("Manzanilla", "Alivia dolores estomacales", 10, 5.0, R.drawable.manzanilla));
-        lista.add(new Planta("Menta", "Refrescante y digestiva", 15, 4.5, R.drawable.menta));
-        lista.add(new Planta("Romero", "Aromática y medicinal", 8, 6.0, R.drawable.romero));
-        lista.add(new Planta("Lavanda", "Relajante y aromática", 12, 7.0, R.drawable.lavanda));
-        return lista;
-    }
-
     @Override
     public void onPlantaClick(Planta planta) {
         Intent intent = new Intent(this, PlantaDetailActivity.class);
@@ -68,12 +66,15 @@ public class InventoryActivity extends AppCompatActivity implements InventoryAda
         intent.putExtra("precio", planta.getPrecio());
         startActivity(intent);
 
-        CartActivity.cartItems.add(new CartItem(
+        // Agregar al carrito usando CarritoManager
+        carritoManager.agregarAlCarrito(
+            usuarioEmail,
+            0, // productoId - usar 0 como placeholder
             planta.getNombre(),
             planta.getPrecio(),
             1,
             planta.getImagenResId()
-        ));
+        );
         Toast.makeText(this, "Agregado al carrito", Toast.LENGTH_SHORT).show();
     }
 }

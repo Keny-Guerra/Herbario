@@ -24,6 +24,11 @@ public class PlantaAdapter extends RecyclerView.Adapter<PlantaAdapter.PlantaView
         this.listener = listener;
     }
 
+    public void updatePlantas(List<Planta> newPlantas) {
+        this.plantas = newPlantas;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public PlantaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -36,8 +41,17 @@ public class PlantaAdapter extends RecyclerView.Adapter<PlantaAdapter.PlantaView
         Planta planta = plantas.get(position);
         holder.nombre.setText(planta.getNombre());
         holder.descripcion.setText(planta.getDescripcion());
-        holder.precio.setText("$" + planta.getPrecio());
-        holder.imagen.setImageResource(planta.getImagenResId());
+        holder.precio.setText("$" + String.format("%.2f", planta.getPrecio()));
+        holder.cantidad.setText("Cantidad: " + planta.getCantidad());
+        
+        // Verificar si el drawable existe antes de usarlo
+        try {
+            holder.imagen.setImageResource(planta.getImagenResId());
+        } catch (Exception e) {
+            // Si el drawable no existe, usar un drawable por defecto
+            holder.imagen.setImageResource(R.drawable.ic_launcher_foreground);
+        }
+        
         holder.itemView.setOnClickListener(v -> listener.onPlantaClick(planta));
     }
 
@@ -48,7 +62,7 @@ public class PlantaAdapter extends RecyclerView.Adapter<PlantaAdapter.PlantaView
 
     static class PlantaViewHolder extends RecyclerView.ViewHolder {
         ImageView imagen;
-        TextView nombre, descripcion, precio;
+        TextView nombre, descripcion, precio, cantidad;
 
         PlantaViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -56,6 +70,7 @@ public class PlantaAdapter extends RecyclerView.Adapter<PlantaAdapter.PlantaView
             nombre = itemView.findViewById(R.id.textNombrePlanta);
             descripcion = itemView.findViewById(R.id.textDescripcionPlanta);
             precio = itemView.findViewById(R.id.textPrecioPlanta);
+            cantidad = itemView.findViewById(R.id.textCantidadPlanta);
         }
     }
 }

@@ -8,17 +8,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.herbario.R;
-import java.util.ArrayList;
+import com.example.herbario.data.ChatManager;
 import java.util.List;
 
 public class ChatbotActivity extends AppCompatActivity {
-    private List<Mensaje> mensajes = new ArrayList<>();
+    private List<Mensaje> mensajes;
     private ChatAdapter adapter;
+    private ChatManager chatManager;
+    private String usuarioEmail = "usuario@ejemplo.com"; // TODO: obtener email real del usuario logueado
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatbot);
+
+        chatManager = new ChatManager(this);
+        mensajes = chatManager.obtenerHistorialChat(usuarioEmail);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewChat);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -41,28 +46,19 @@ public class ChatbotActivity extends AppCompatActivity {
     private void enviarMensaje(EditText editMensaje, RecyclerView recyclerView) {
         String texto = editMensaje.getText().toString().trim();
         if (!texto.isEmpty()) {
+            // Guardar mensaje del usuario
+            chatManager.guardarMensaje(texto, true, usuarioEmail);
             mensajes.add(new Mensaje(texto, true));
             adapter.notifyItemInserted(mensajes.size() - 1);
             recyclerView.scrollToPosition(mensajes.size() - 1);
             editMensaje.setText("");
-            responderComoBot(texto, recyclerView);
+            
+            // Obtener y guardar respuesta del bot
+            String respuesta = chatManager.obtenerRespuestaBot(texto);
+            chatManager.guardarMensaje(respuesta, false, usuarioEmail);
+            mensajes.add(new Mensaje(respuesta, false));
+            adapter.notifyItemInserted(mensajes.size() - 1);
+            recyclerView.scrollToPosition(mensajes.size() - 1);
         }
-    }
-
-    private void responderComoBot(String textoUsuario, RecyclerView recyclerView) {
-        // Respuesta simple, puedes mejorar la lógica aquí
-        String respuesta = obtenerRespuestaBot(textoUsuario);
-        mensajes.add(new Mensaje(respuesta, false));
-        adapter.notifyItemInserted(mensajes.size() - 1);
-        recyclerView.scrollToPosition(mensajes.size() - 1);
-    }
-
-    private String obtenerRespuestaBot(String textoUsuario) {
-        textoUsuario = textoUsuario.toLowerCase();
-        if (textoUsuario.contains("hola")) return "¡Hola! ¿En qué puedo ayudarte con tus plantas medicinales?";
-        if (textoUsuario.contains("comprar")) return "Puedes comprar plantas desde el catálogo y agregarlas al carrito.";
-        if (textoUsuario.contains("recomienda")) return "Te recomiendo la manzanilla para dolores estomacales y la lavanda para relajarte.";
-        if (textoUsuario.contains("gracias")) return "¡De nada! Si tienes más preguntas, aquí estaré.";
-        return "Lo siento, aún estoy aprendiendo. ¿Puedes preguntar de otra forma?";
     }
 }

@@ -10,25 +10,30 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.herbario.R;
 import com.example.herbario.data.CartItem;
+import com.example.herbario.data.CarritoManager;
 import com.example.herbario.ui.checkout.CheckoutActivity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CartActivity extends AppCompatActivity implements CartAdapter.OnCartChangeListener {
-    public static List<CartItem> cartItems = new ArrayList<>();
     private CartAdapter adapter;
     private TextView totalText;
+    private CarritoManager carritoManager;
+    private List<CartItem> cartItems;
+    private String usuarioEmail = "usuario@ejemplo.com"; // TODO: obtener email real del usuario logueado
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
 
+        carritoManager = new CarritoManager(this);
+        cartItems = carritoManager.obtenerCarrito(usuarioEmail);
+
         totalText = findViewById(R.id.textTotal);
         RecyclerView recyclerView = findViewById(R.id.recyclerViewCart);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new CartAdapter(cartItems, this);
+        adapter = new CartAdapter(cartItems, this, carritoManager, usuarioEmail);
         recyclerView.setAdapter(adapter);
 
         Button btnComprar = findViewById(R.id.btnComprar);
@@ -54,11 +59,15 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
 
     @Override
     public void onQuantityChanged() {
+        cartItems = carritoManager.obtenerCarrito(usuarioEmail);
+        adapter.updateCartItems(cartItems);
         updateTotal();
     }
 
     @Override
     public void onItemRemoved(int position) {
+        cartItems = carritoManager.obtenerCarrito(usuarioEmail);
+        adapter.updateCartItems(cartItems);
         updateTotal();
     }
 }

@@ -18,6 +18,11 @@ public class CheckoutAdapter extends RecyclerView.Adapter<CheckoutAdapter.Checko
         this.items = items;
     }
 
+    public void updateItems(List<CartItem> newItems) {
+        this.items = newItems;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public CheckoutViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -31,7 +36,14 @@ public class CheckoutAdapter extends RecyclerView.Adapter<CheckoutAdapter.Checko
         holder.nombre.setText(item.getNombre());
         holder.precio.setText("$" + item.getPrecio());
         holder.cantidad.setText("Cantidad: " + item.getCantidad());
-        holder.imagen.setImageResource(item.getImagenResId());
+        
+        // Verificar si el drawable existe antes de usarlo
+        try {
+            holder.imagen.setImageResource(item.getImagenResId());
+        } catch (Exception e) {
+            // Si el drawable no existe, usar un drawable por defecto
+            holder.imagen.setImageResource(R.drawable.ic_launcher_foreground);
+        }
     }
 
     @Override

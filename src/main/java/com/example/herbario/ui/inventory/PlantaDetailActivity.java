@@ -13,14 +13,14 @@ public class PlantaDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_planta_detail);
 
-        TextView nombre = findViewById(R.id.textNombreDetalle);
-        TextView descripcion = findViewById(R.id.textDescripcionDetalle);
-        TextView cantidad = findViewById(R.id.textCantidadDetalle);
-        TextView precio = findViewById(R.id.textPrecioDetalle);
+        TextView nombre = findViewById(R.id.textDetalleNombre);
+        TextView descripcion = findViewById(R.id.textDetalleDescripcion);
+        TextView cantidad = findViewById(R.id.textDetalleCantidad);
+        TextView precio = findViewById(R.id.textDetallePrecio);
 
         nombre.setText(getIntent().getStringExtra("nombre"));
         descripcion.setText(getIntent().getStringExtra("descripcion"));
-        cantidad.setText("Cantidad: " + getIntent().getIntExtra("cantidad", 0));
+        cantidad.setText("Cantidad disponible: " + getIntent().getIntExtra("stock", 0));
         precio.setText("Precio: $" + String.format("%.2f", getIntent().getDoubleExtra("precio", 0.0)));
     }
 }

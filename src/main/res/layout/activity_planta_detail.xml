@@ -1,42 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor">
 
-    <TextView
-        android:id="@+id/textNombreDetalle"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nombre"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp"/>
+        android:orientation="vertical"
+        android:padding="24dp">
 
-    <TextView
-        android:id="@+id/textDescripcionDetalle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Descripción"
-        android:textSize="16sp"
-        android:layout_marginBottom="8dp"/>
+        <ImageView
+            android:id="@+id/imageDetallePlanta"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_launcher_foreground"
+            android:background="@drawable/search_bar_bg"
+            android:layout_marginBottom="18dp"/>
 
-    <TextView
-        android:id="@+id/textCantidadDetalle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cantidad"
-        android:layout_marginBottom="8dp"/>
+        <TextView
+            android:id="@+id/textDetalleNombre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombre de la Planta"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/primaryTextColor"
+            android:layout_marginBottom="8dp"/>
 
-    <TextView
-        android:id="@+id/textPrecioDetalle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Precio"
-        android:textStyle="bold"
-        android:textSize="18sp"/>
+        <TextView
+            android:id="@+id/textDetalleDescripcion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Descripción de la planta"
+            android:textSize="16sp"
+            android:textColor="@color/secondaryTextColor"
+            android:layout_marginBottom="12dp"/>
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/textDetallePrecio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Precio: $0.00"
+            android:textSize="18sp"
+            android:textColor="@color/priceColor"
+            android:layout_marginBottom="6dp"/>
+
+        <TextView
+            android:id="@+id/textDetalleCantidad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cantidad disponible: 0"
+            android:textSize="16sp"
+            android:textColor="@color/primaryColor"
+            android:layout_marginBottom="18dp"/>
+
+        <Button
+            android:id="@+id/btnAgregarCarrito"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Agregar al carrito"
+            android:backgroundTint="@color/primaryColor"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="12dp"/>
+
+        <Button
+            android:id="@+id/btnRegresar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Regresar"
+            android:backgroundTint="@color/secondaryTextColor"
+            android:textColor="@android:color/white"/>
+
+    </LinearLayout>
+</ScrollView>

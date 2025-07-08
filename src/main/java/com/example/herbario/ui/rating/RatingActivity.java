@@ -10,17 +10,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.herbario.R;
 import com.example.herbario.data.Calificacion;
-import java.util.ArrayList;
+import com.example.herbario.data.CalificacionManager;
 import java.util.List;
 
 public class RatingActivity extends AppCompatActivity {
-    public static List<Calificacion> calificaciones = new ArrayList<>();
+    private List<Calificacion> calificaciones;
     private RatingAdapter adapter;
+    private CalificacionManager calificacionManager;
+    private String usuarioEmail = "usuario@ejemplo.com"; // TODO: obtener email real del usuario logueado
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rating);
+
+        calificacionManager = new CalificacionManager(this);
+        calificaciones = calificacionManager.obtenerTodasLasCalificaciones();
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewRatings);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -44,9 +49,12 @@ public class RatingActivity extends AppCompatActivity {
                 return;
             }
 
-            Calificacion cal = new Calificacion(producto, usuario, estrellas, comentario);
-            calificaciones.add(cal);
-            adapter.notifyItemInserted(calificaciones.size() - 1);
+            // Guardar calificación en la base de datos
+            calificacionManager.guardarCalificacion(usuarioEmail, producto, estrellas, comentario);
+            
+            // Actualizar la lista desde la base de datos
+            calificaciones = calificacionManager.obtenerTodasLasCalificaciones();
+            adapter.updateCalificaciones(calificaciones);
 
             editUsuario.setText("");
             editProducto.setText("");
