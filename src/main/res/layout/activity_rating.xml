@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@color/backgroundColor"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Califica tu compra o producto"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/editUsuario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Usuario"/>
+
+    <EditText
+        android:id="@+id/editProducto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Producto"/>
+
+    <EditText
+        android:id="@+id/editComentario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Comentario (opcional)"/>
+
+    <RatingBar
+        android:id="@+id/ratingBarInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:stepSize="1"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"/>
+
+    <Button
+        android:id="@+id/btnEnviarCalificacion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enviar calificación"
+        android:backgroundTint="@color/primaryColor"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="8dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/secondaryTextColor"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewRatings"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+</LinearLayout>
